@@ -1,0 +1,6 @@
+{
+  "name": "Pace Status",
+  "id": "jingle-pace-status",
+  "version": "${version}",
+  "initializer": "me.cylorun.pace.PaceStatus::initialize"
+}

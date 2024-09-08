@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+}
+
+group = project.maven_group
+version = project.plugin_version
+archivesBaseName = project.archives_base_name
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+}
+
+configurations {
+    provided
+    implementation.extendsFrom(provided)
+}
+
+dependencies {
+    implementation 'com.github.DuncanRuns:Jingle:9f3cc0c219'
+    provided 'com.github.Vatuu:discord-rpc:1.6.2'
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("jingle.plugin.json") {
+        expand "version": project.version
+    }
+}
+
+jar {
+    from configurations.provided.asFileTree.files.collect { zipTree(it) }
+}
