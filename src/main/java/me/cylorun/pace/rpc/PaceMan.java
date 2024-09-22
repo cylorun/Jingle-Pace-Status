@@ -1,5 +1,7 @@
 package me.cylorun.pace.rpc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class PaceMan {
 
@@ -48,14 +51,14 @@ public class PaceMan {
     }
 
 
-    public static JsonObject getRun(String searchRunner) {
+    public static Optional<JsonObject> getRun(String searchRunner) {
         String apiUrl = "https://paceman.gg/api/ars/liveruns";
         String paceData;
         try {
             paceData = getURL(new URL(apiUrl)).getLeft();
         } catch (MalformedURLException | NullPointerException e) {
             Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch data from paceman");
-            return null;
+            return Optional.empty();
         }
 
         if (paceData != null) {
@@ -64,12 +67,12 @@ public class PaceMan {
                 JsonObject run = runElement.getAsJsonObject();
                 String runnerNick = run.get("nickname").getAsString();
                 if (runnerNick.toLowerCase().equals(searchRunner)) {
-                    return run;
+                    return Optional.of(run);
                 }
 
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private static URL getPaceSatsURL() throws MalformedURLException {
@@ -77,29 +80,27 @@ public class PaceMan {
         return new URL(String.format("https://paceman.gg/stats/api/getSessionNethers/?name=%s&hours=%s&hoursBetween=2", options.username, options.time_period));
     }
 
-    public static Pair<Integer, String> getEnterStats(String runnerName) throws IOException {
+    public static Optional<PaceManStats> getEnterStats(String runnerName) throws IOException {
         URL url = getPaceSatsURL();
         Pair<String, Integer> apiRes = getURL(url);
-
-        if (apiRes.getRight() == 404) {
+        int statusCode = apiRes.getRight();
+        if (statusCode == 404) {
             Jingle.log(Level.WARN, "(Pace-Status) Unknown username " + runnerName);
-            return null;
+            return Optional.empty();
         }
 
-        if (apiRes.getLeft() == null) {
-            return null;
+        if (apiRes.getLeft() == null || statusCode != 200) {
+            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch data");
+            return Optional.empty();
         }
 
-        JsonElement e = JsonParser.parseString(apiRes.getLeft());
-        if (e != null) {
-            JsonObject o = e.getAsJsonObject();
-            int count = o.get("count").getAsInt();
-            String avg = o.get("avg").getAsString();
-
-            return Pair.of(count, avg);
+        try {
+            PaceManStats stats = new ObjectMapper().readValue(apiRes.getLeft(), PaceManStats.class);
+            return Optional.of(stats);
+        } catch (JsonProcessingException ex) {
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public static String formatTime(int ms) {
@@ -135,4 +136,20 @@ public class PaceMan {
         paceDescriptions.put("rsg.credits", "Finish!");
         return paceDescriptions.get(currentSplit);
     }
+
+    public static class PaceManStats {
+        public int count;
+        public String avg;
+        public double rnph;
+
+        public PaceManStats(int count, String avg, double rnph) {
+            this.count = count;
+            this.avg = avg;
+            this.rnph = rnph;
+        }
+
+        public PaceManStats() {
+        }
+    }
+
 }

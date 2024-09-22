@@ -26,57 +26,75 @@ public class DiscordStatus {
         DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler((user) -> System.out.println(user.username)).build();
         DiscordRPC.discordInitialize(this.cliendId, handlers, true);
         try {
-            this.updatePresence();
+            this.update();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void updatePresence() throws IOException {
+    public void update() throws IOException {
         DiscordRichPresence p = this.getNewPresence();
         if (p == null) {
             DiscordRPC.discordClearPresence();
             return;
         }
+
         DiscordRPC.discordUpdatePresence(p);
     }
 
-    public String getStatsString() throws IOException {
+    private PaceMan.PaceManStats getStats() throws IOException {
+        PaceStatusOptions options = PaceStatusOptions.getInstance();
+        return PaceMan.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
+    }
+
+    // returns reset stats in a specific format
+    private String getStatsString() throws IOException {
         PaceStatusOptions options = PaceStatusOptions.getInstance();
         if (!options.show_enter_avg && !options.show_enter_count) {
             return "";
         }
-        Pair<Integer, String> stats = PaceMan.getEnterStats(options.username);
-        if (stats == null) {
-            return "";
-        }
 
-        String enterString = options.show_enter_count ? String.format("Enters: %s", stats.getLeft()) : "";
-        String enterAvgString = options.show_enter_avg ? String.format("Enter Avg: %s", stats.getRight()) : "";
+        PaceMan.PaceManStats stats = PaceMan.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
+        String enterString = options.show_enter_count ? String.format("Enters: %s", stats.count) : "";
+        String enterAvgString = options.show_enter_avg ? String.format("Enter Avg: %s", stats.avg) : "";
         return String.format("%s %s %s", enterString, enterString.isEmpty() || enterAvgString.isEmpty() ? "" : " | ", enterAvgString);
     }
 
-    public Pair<Integer, String> getStats() throws IOException {
-        return PaceMan.getEnterStats(PaceStatusOptions.getInstance().username);
+    private String getCurrentSplit() throws IOException {
+        PaceStatusOptions options = PaceStatusOptions.getInstance();
+        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
+
+        JsonArray eventList = run.getAsJsonArray("eventList");
+        JsonObject latestEvent = eventList.get(eventList.size() - 1).getAsJsonObject();
+
+        return latestEvent.get("eventId").getAsString();
+    }
+
+    private String getCurrentTime() throws IOException {
+        PaceStatusOptions options = PaceStatusOptions.getInstance();
+        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
+
+        JsonArray eventList = run.getAsJsonArray("eventList");
+        JsonObject latestEvent = eventList.get(eventList.size() - 1).getAsJsonObject();
+
+        return PaceMan.formatTime(latestEvent.get("igt").getAsInt());
     }
 
     private Pair<String, String> getDiscordText(String currentSplit) throws IOException {
-        String stats = getStatsString();
+        String statsString = this.getStatsString();
+        System.out.println(statsString);
         if (currentSplit == null) {
-            return Pair.of("Idle", stats);
+            return Pair.of("Idle", statsString);
         }
-        return Pair.of(PaceMan.getRunDesc(currentSplit), stats);
+        return Pair.of(PaceMan.getRunDesc(currentSplit), statsString);
     }
 
     private DiscordRichPresence getNewPresence() throws IOException {
         PaceStatusOptions options = PaceStatusOptions.getInstance();
-        JsonObject run = PaceMan.getRun(options.username.toLowerCase());
-
+        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
         if (run != null) {
-            JsonArray eventList = run.getAsJsonArray("eventList");
-            JsonObject latestEvent = eventList.get(eventList.size() - 1).getAsJsonObject();
-            String currentSplit = latestEvent.get("eventId").getAsString();
-            String currentTime = PaceMan.formatTime(Integer.parseInt(latestEvent.get("igt").getAsString()));
+            String currentSplit = this.getCurrentSplit();
+            String currentTime = this.getCurrentTime();
             Pair<String, String> text = this.getDiscordText(currentSplit);
 
             return new DiscordRichPresence.Builder("Current Time: " + currentTime)
@@ -88,13 +106,13 @@ public class DiscordStatus {
         }
 
 
-        Pair<Integer, String> stats = this.getStats();
+        PaceMan.PaceManStats stats = this.getStats();
         if (stats == null) {
             return null;
         }
 
-        String enters = stats.getLeft() == null || !options.show_enter_avg ? "" : String.format("Enters: %s", stats.getLeft());
-        String avg = stats.getRight() == null || !options.show_enter_avg ? "" : String.format("Enter Avg: %s", stats.getRight());
+        String enters = !options.show_enter_avg ? "" : String.format("Enters: %s", stats.count);
+        String avg = stats.avg == null || !options.show_enter_avg ? "" : String.format("Enter Avg: %s", stats.avg);
 
         if (PaceStatus.isAfk()) {
             return new DiscordRichPresence.Builder("Currently AFK")

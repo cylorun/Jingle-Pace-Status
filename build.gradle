@@ -22,6 +22,9 @@ configurations {
 
 dependencies {
     implementation 'com.github.DuncanRuns:Jingle:9f3cc0c219'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
     provided 'com.github.Vatuu:discord-rpc:1.6.2'
 }
 

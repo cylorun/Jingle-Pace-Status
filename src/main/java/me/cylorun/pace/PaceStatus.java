@@ -47,12 +47,13 @@ public class PaceStatus {
             }
             try {
                 if (options.enabled) {
-                    ds.updatePresence();
+                    ds.update();
                 } else {
                     DiscordRPC.discordClearPresence();
                 }
                 errorCounter.set(0);
             } catch (Throwable t) {
+                t.printStackTrace();
                 if (errorCounter.incrementAndGet() > 10) {
                     Jingle.log(Level.ERROR, "Pace Status Error: " + ExceptionUtil.toDetailedString(t));
                 }
