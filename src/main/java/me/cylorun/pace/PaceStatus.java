@@ -53,6 +53,7 @@ public class PaceStatus {
                 errorCounter.set(0);
             } catch (Throwable t) {
                 t.printStackTrace();
+                Jingle.log(Level.ERROR, ExceptionUtil.toDetailedString(t));
                 if (errorCounter.incrementAndGet() > 5) {
                     DiscordRPC.discordClearPresence();
                     Jingle.log(Level.ERROR, "Pace Status Error: " + ExceptionUtil.toDetailedString(t));

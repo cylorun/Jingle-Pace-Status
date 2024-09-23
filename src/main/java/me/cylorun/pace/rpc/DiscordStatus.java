@@ -9,6 +9,7 @@ import net.arikia.dev.drpc.DiscordEventHandlers;
 import net.arikia.dev.drpc.DiscordRPC;
 import net.arikia.dev.drpc.DiscordRichPresence;
 import org.apache.commons.lang3.tuple.Pair;
+import me.cylorun.pace.rpc.PaceManUtil;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -28,12 +29,12 @@ public class DiscordStatus {
         DiscordRPC.discordInitialize(this.cliendId, handlers, true);
         try {
             this.update();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void update() throws IOException {
+    public void update() throws Exception {
         DiscordRichPresence p = this.getNewPresence();
         if (p == null) {
             DiscordRPC.discordClearPresence();
@@ -88,8 +89,22 @@ public class DiscordStatus {
     }
 
     private DiscordRichPresence getNewPresence() throws IOException {
+        System.out.println("Getting new prescence");
         PaceStatusOptions options = PaceStatusOptions.getInstance();
-        Optional<JsonObject> run = PaceManUtil.getRun(options.username.toLowerCase());
+        String username = options.username.toLowerCase();
+        System.out.println("username: " + username);
+        try {
+            PaceManUtil.JJ();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Optional<JsonObject> run;
+        try {
+            run = PaceManUtil.getRun(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
         if (run.isPresent()) {
             String currentSplit = this.getCurrentSplit();

@@ -27,6 +27,7 @@ public class PaceStatusOptions {
     }
 
     public static PaceStatusOptions getInstance() {
+        System.out.println("Grabbing optionss");
         if (instance == null) {
             if (Files.exists(SAVE_PATH)) {
                 try {

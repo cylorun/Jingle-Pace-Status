@@ -15,6 +15,10 @@ repositories {
     maven { url "https://www.jetbrains.com/intellij-repository/releases" }
 }
 
+compileJava {
+    options.compilerArgs << '-parameters'
+}
+
 configurations {
     provided
     implementation.extendsFrom(provided)
