@@ -11,10 +11,10 @@ When idle
 
 # Usage
 - Set up [PaceMan](https://paceman.gg)
-- Open up [Jingle](https://github.com/duncanruns/jingle/releases/latest) and navigate to the **Plugins** section.
+- Open up [Jingle](https://github.com/duncanruns/jingle/releases/latest) and navigate to the **Plugins** tab.
 - Open your plugins folder and put the plugin there.
-- Restart Julti and navigate to the **Plugins** section again.-
+- Restart Jingle and navigate to the **Plugins** tab again.
 - From there you can configure the Pace-Status plugin.
 
 # Config
-  - Time period is the number of hours to include stats for.
+  - `Time period` is the number of hours to include stats for.
