@@ -11,6 +11,7 @@ import net.arikia.dev.drpc.DiscordRichPresence;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.util.Optional;
 
 
 public class DiscordStatus {
@@ -42,9 +43,9 @@ public class DiscordStatus {
         DiscordRPC.discordUpdatePresence(p);
     }
 
-    private PaceMan.PaceManStats getStats() throws IOException {
+    private PaceManUtil.PaceManStats getStats() throws IOException {
         PaceStatusOptions options = PaceStatusOptions.getInstance();
-        return PaceMan.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
+        return PaceManUtil.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
     }
 
     // returns reset stats in a specific format
@@ -54,7 +55,7 @@ public class DiscordStatus {
             return "";
         }
 
-        PaceMan.PaceManStats stats = PaceMan.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
+        PaceManUtil.PaceManStats stats = PaceManUtil.getEnterStats(options.username).orElseThrow(() -> new IOException("Failed to fetch stats"));
         String enterString = options.show_enter_count ? String.format("Enters: %s", stats.count) : "";
         String enterAvgString = options.show_enter_avg ? String.format("Enter Avg: %s", stats.avg) : "";
         return String.format("%s %s %s", enterString, enterString.isEmpty() || enterAvgString.isEmpty() ? "" : " | ", enterAvgString);
@@ -62,7 +63,7 @@ public class DiscordStatus {
 
     private String getCurrentSplit() throws IOException {
         PaceStatusOptions options = PaceStatusOptions.getInstance();
-        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
+        JsonObject run = PaceManUtil.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
 
         JsonArray eventList = run.getAsJsonArray("eventList");
         JsonObject latestEvent = eventList.get(eventList.size() - 1).getAsJsonObject();
@@ -70,43 +71,41 @@ public class DiscordStatus {
         return latestEvent.get("eventId").getAsString();
     }
 
-    private String getCurrentTime() throws IOException {
-        PaceStatusOptions options = PaceStatusOptions.getInstance();
-        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
-
+    private String getCurrentTime(JsonObject run) {
         JsonArray eventList = run.getAsJsonArray("eventList");
         JsonObject latestEvent = eventList.get(eventList.size() - 1).getAsJsonObject();
 
-        return PaceMan.formatTime(latestEvent.get("igt").getAsInt());
+        return PaceManUtil.formatTime(latestEvent.get("igt").getAsInt());
     }
 
     private Pair<String, String> getDiscordText(String currentSplit) throws IOException {
         String statsString = this.getStatsString();
-        System.out.println(statsString);
         if (currentSplit == null) {
             return Pair.of("Idle", statsString);
         }
-        return Pair.of(PaceMan.getRunDesc(currentSplit), statsString);
+
+        return Pair.of(PaceManUtil.getRunDesc(currentSplit), statsString);
     }
 
     private DiscordRichPresence getNewPresence() throws IOException {
         PaceStatusOptions options = PaceStatusOptions.getInstance();
-        JsonObject run = PaceMan.getRun(options.username.toLowerCase()).orElseThrow(() -> new IOException("Failed to fetch run data"));
-        if (run != null) {
+        Optional<JsonObject> run = PaceManUtil.getRun(options.username.toLowerCase());
+
+        if (run.isPresent()) {
             String currentSplit = this.getCurrentSplit();
-            String currentTime = this.getCurrentTime();
+            String currentTime = this.getCurrentTime(run.get());
             Pair<String, String> text = this.getDiscordText(currentSplit);
 
             return new DiscordRichPresence.Builder("Current Time: " + currentTime)
                     .setStartTimestamps(this.start)
                     .setDetails(text.getRight())
-                    .setBigImage(PaceMan.getIcon(currentSplit), PaceMan.getRunDesc(currentSplit))
+                    .setBigImage(PaceManUtil.getIcon(currentSplit), PaceManUtil.getRunDesc(currentSplit))
                     .setSmallImage("app_icon", "paceman.gg")
                     .build();
         }
 
 
-        PaceMan.PaceManStats stats = this.getStats();
+        PaceManUtil.PaceManStats stats = this.getStats();
         if (stats == null) {
             return null;
         }

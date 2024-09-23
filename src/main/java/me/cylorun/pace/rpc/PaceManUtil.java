@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class PaceMan {
+public class PaceManUtil {
 
     private static Pair<String, Integer> getURL(URL url) {
         StringBuilder response = null;
@@ -44,7 +44,7 @@ public class PaceMan {
 
             reader.close();
         } catch (Exception e) {
-            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch run data: " + e.toString());
+            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch run data: " + e.getMessage());
         }
 
         return Pair.of(response == null ? null : response.toString(), code);
@@ -98,6 +98,7 @@ public class PaceMan {
             PaceManStats stats = new ObjectMapper().readValue(apiRes.getLeft(), PaceManStats.class);
             return Optional.of(stats);
         } catch (JsonProcessingException ex) {
+            ex.printStackTrace();
         }
 
         return Optional.empty();

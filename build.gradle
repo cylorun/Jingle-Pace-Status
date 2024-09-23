@@ -21,7 +21,8 @@ configurations {
 }
 
 dependencies {
-    implementation 'com.github.DuncanRuns:Jingle:9f3cc0c219'
+    // https://jitpack.io/#DuncanRuns/Jingle/
+    implementation 'com.github.DuncanRuns:Jingle:v1.0.0'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
