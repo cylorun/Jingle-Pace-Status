@@ -34,26 +34,25 @@ public class PaceStatus {
     public static void initialize() {
         Jingle.log(Level.INFO, "Pace-Status plugin initialized");
         JingleGUI.addPluginTab("Pace Status", new PaceStatusGUI());
+
         PaceStatusOptions options = PaceStatusOptions.getInstance();
         DiscordStatus ds = new DiscordStatus(PaceStatus.CLIENT_ID);
 
-
         AtomicInteger errorCounter = new AtomicInteger();
         AtomicBoolean hasInitialized = new AtomicBoolean(false);
+
         EXECUTOR.scheduleWithFixedDelay(() -> {
             if (!hasInitialized.get()) {
                 ds.init();
                 hasInitialized.set(true);
             }
             try {
-                if (options.enabled) {
-                    ds.update();
-                } else {
-                    DiscordRPC.discordClearPresence();
-                }
+                if (options.enabled) ds.update();
+                else DiscordRPC.discordClearPresence();
+
                 errorCounter.set(0);
             } catch (Throwable t) {
-//                t.printStackTrace();
+                t.printStackTrace();
                 if (errorCounter.incrementAndGet() > 5) {
                     DiscordRPC.discordClearPresence();
                     Jingle.log(Level.ERROR, "Pace Status Error: " + ExceptionUtil.toDetailedString(t));

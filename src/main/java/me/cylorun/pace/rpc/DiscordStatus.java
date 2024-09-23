@@ -15,15 +15,15 @@ import java.util.Optional;
 
 
 public class DiscordStatus {
-    private String cliendId;
-    private long start;
+    private final String cliendId;
+    private long startTime;
 
     public DiscordStatus(String clientId) {
         this.cliendId = clientId;
     }
 
     public void init() {
-        this.start = System.currentTimeMillis();
+        this.startTime = System.currentTimeMillis();
         DiscordEventHandlers handlers = new DiscordEventHandlers.Builder().setReadyEventHandler((user) -> System.out.println(user.username)).build();
         DiscordRPC.discordInitialize(this.cliendId, handlers, true);
         try {
@@ -97,7 +97,7 @@ public class DiscordStatus {
             Pair<String, String> text = this.getDiscordText(currentSplit);
 
             return new DiscordRichPresence.Builder("Current Time: " + currentTime)
-                    .setStartTimestamps(this.start)
+                    .setStartTimestamps(this.startTime)
                     .setDetails(text.getRight())
                     .setBigImage(PaceManUtil.getIcon(currentSplit), PaceManUtil.getRunDesc(currentSplit))
                     .setSmallImage("app_icon", "paceman.gg")
@@ -115,7 +115,7 @@ public class DiscordStatus {
 
         if (PaceStatus.isAfk()) {
             return new DiscordRichPresence.Builder("Currently AFK")
-                    .setStartTimestamps(this.start)
+                    .setStartTimestamps(this.startTime)
                     .setDetails(getStatsString())
                     .setBigImage("idle", "Not on pace")
                     .setSmallImage("app_icon", "paceman.gg")
@@ -123,7 +123,7 @@ public class DiscordStatus {
         }
 
         return new DiscordRichPresence.Builder(avg)
-                .setStartTimestamps(this.start)
+                .setStartTimestamps(this.startTime)
                 .setDetails(enters)
                 .setBigImage("idle", "Not on pace")
                 .setSmallImage("app_icon", "paceman.gg")

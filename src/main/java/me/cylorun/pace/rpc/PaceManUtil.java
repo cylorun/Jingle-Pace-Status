@@ -98,7 +98,6 @@ public class PaceManUtil {
             PaceManStats stats = new ObjectMapper().readValue(apiRes.getLeft(), PaceManStats.class);
             return Optional.of(stats);
         } catch (JsonProcessingException ex) {
-            ex.printStackTrace();
         }
 
         return Optional.empty();
