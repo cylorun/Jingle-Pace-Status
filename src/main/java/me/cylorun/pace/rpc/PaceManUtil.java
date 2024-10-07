@@ -1,11 +1,6 @@
 package me.cylorun.pace.rpc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import me.cylorun.pace.PaceStatusOptions;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
@@ -99,9 +94,9 @@ public class PaceManUtil {
         }
 
         try {
-            PaceManStats stats = new ObjectMapper().readValue(apiRes.getLeft(), PaceManStats.class);
+            PaceManStats stats = new Gson().fromJson(apiRes.getLeft(), PaceManStats.class);
             return Optional.of(stats);
-        } catch (JsonProcessingException ex) {
+        } catch (JsonParseException ex) {
         }
 
         return Optional.empty();
