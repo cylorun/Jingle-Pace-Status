@@ -89,15 +89,9 @@ public class DiscordStatus {
     }
 
     private DiscordRichPresence getNewPresence() throws IOException {
-        System.out.println("Getting new prescence");
         PaceStatusOptions options = PaceStatusOptions.getInstance();
         String username = options.username.toLowerCase();
-        System.out.println("username: " + username);
-        try {
-            PaceManUtil.JJ();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         Optional<JsonObject> run;
         try {
             run = PaceManUtil.getRun(username);

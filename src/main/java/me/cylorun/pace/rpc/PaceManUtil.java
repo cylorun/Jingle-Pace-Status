@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class PaceManUtil {
-
     private static Pair<String, Integer> getURL(URL url) {
         StringBuilder response = null;
         int code = 400;
@@ -45,12 +44,7 @@ public class PaceManUtil {
         return Pair.of(response == null ? null : response.toString(), code);
     }
 
-    public static void JJ(){
-        System.out.println("WTF JIGGLE JJ");
-    }
     public static Optional<JsonObject> getRun(String searchRunner) {
-        System.out.println("Search runner: " + searchRunner);
-        Jingle.log(Level.INFO, "Search runner: " + searchRunner);
         String apiUrl = "https://paceman.gg/api/ars/liveruns";
         String paceData;
         try {
