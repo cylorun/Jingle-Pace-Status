@@ -41,6 +41,5 @@ public class PaceStatusOptions {
 
         return instance;
     }
-
 }
 
