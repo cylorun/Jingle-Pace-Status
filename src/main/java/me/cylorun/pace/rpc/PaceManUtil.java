@@ -5,6 +5,7 @@ import me.cylorun.pace.PaceStatusOptions;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import xyz.duncanruns.jingle.Jingle;
+import xyz.duncanruns.jingle.util.ExceptionUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,10 +18,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public class PaceManUtil {
+    public static final String PACEMAN_API_URL = "https://paceman.gg/api/ars/liveruns";
 
     private static Pair<String, Integer> getURL(URL url) {
         StringBuilder response = null;
-        int code = 400;
+        int code = 500;
         try {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -45,18 +47,13 @@ public class PaceManUtil {
         return Pair.of(response == null ? null : response.toString(), code);
     }
 
-    public static void JJ(){
-        System.out.println("WTF JIGGLE JJ");
-    }
     public static Optional<JsonObject> getRun(String searchRunner) {
-        System.out.println("Search runner: " + searchRunner);
-        Jingle.log(Level.INFO, "Search runner: " + searchRunner);
-        String apiUrl = "https://paceman.gg/api/ars/liveruns";
         String paceData;
+
         try {
-            paceData = getURL(new URL(apiUrl)).getLeft();
+            paceData = getURL(new URL(PACEMAN_API_URL)).getLeft();
         } catch (MalformedURLException | NullPointerException e) {
-            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch data from paceman");
+            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch data from paceman: " + ExceptionUtil.toDetailedString(e));
             return Optional.empty();
         }
 
@@ -68,9 +65,9 @@ public class PaceManUtil {
                 if (runnerNick.toLowerCase().equals(searchRunner)) {
                     return Optional.of(run);
                 }
-
             }
         }
+
         return Optional.empty();
     }
 
@@ -97,6 +94,7 @@ public class PaceManUtil {
             PaceManStats stats = new Gson().fromJson(apiRes.getLeft(), PaceManStats.class);
             return Optional.of(stats);
         } catch (JsonParseException ex) {
+            Jingle.log(Level.ERROR, "(Pace-Status) Failed to fetch data");
         }
 
         return Optional.empty();
@@ -139,12 +137,14 @@ public class PaceManUtil {
     public static class PaceManStats {
         public int count;
         public String avg;
+        public String uuid;
         public double rnph;
 
-        public PaceManStats(int count, String avg, double rnph) {
+        public PaceManStats(int count, String avg, double rnph, String uuid) {
             this.count = count;
             this.avg = avg;
             this.rnph = rnph;
+            this.uuid = uuid;
         }
 
         public PaceManStats() {
