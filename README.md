@@ -8,7 +8,7 @@ A Discord rich presence plugin for [Jingle](https://github.com/duncanruns/jingle
 
 
 # Usage
-- Set up [PaceMan](https://paceman.gg)
+- Set up [PaceMan](https://docs.google.com/document/d/1RgHUJhLvnUp0KtnCcdJEHCi6rn7naUqWwfe-0ntTAlo/edit?tab=t.0#heading=h.sln0cxlrpa6u)
 - Open up [Jingle](https://github.com/duncanruns/jingle/releases/latest) and navigate to the **Plugins** tab.
 - Open your plugins folder and put the plugin there.
 - Restart Jingle and navigate to the **Plugins** tab again.
