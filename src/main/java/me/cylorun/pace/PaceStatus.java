@@ -63,6 +63,7 @@ public class PaceStatus {
 
         PluginEvents.EXIT_WORLD.register(() -> PaceStatus.lastResetTime = System.currentTimeMillis());
 
+        PluginEvents.STOP.register(EXECUTOR::shutdown);
     }
 
     public static boolean isAfk() {
