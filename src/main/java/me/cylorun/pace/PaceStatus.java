@@ -5,7 +5,6 @@ import me.cylorun.pace.gui.PaceStatusGUI;
 import me.cylorun.pace.rpc.DiscordStatus;
 import net.arikia.dev.drpc.DiscordRPC;
 import org.apache.logging.log4j.Level;
-import sun.jvm.hotspot.HelloWorld;
 import xyz.duncanruns.jingle.Jingle;
 import xyz.duncanruns.jingle.JingleAppLaunch;
 import xyz.duncanruns.jingle.gui.JingleGUI;
