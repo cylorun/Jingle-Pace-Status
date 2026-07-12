@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 
 public class PaceStatusOptions {
     public String username = "";
-    public boolean enabled = true;
+    public boolean enabled = false;
     public boolean show_enter_count = true;
     public boolean show_enter_avg = true;
     public int time_period = 24;
