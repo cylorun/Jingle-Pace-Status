@@ -39,6 +39,10 @@ public class DiscordStatus {
         DiscordRPC.discordInitialize(clientId, handlers, true);
     }
 
+    public void shutdown() {
+        DiscordRPC.discordShutdown();
+    }
+
     public void update() throws Exception {
         DiscordRichPresence presence = createNewPresence();
         if (presence == null) {
