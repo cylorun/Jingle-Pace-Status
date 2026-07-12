@@ -21,7 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PaceStatus {
-    private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
+    private static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor((r) -> {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        t.setName("PaceStatus thread");
+        return t;
+    });
+
     private static final String CLIENT_ID = "1188623641513050224";
     private static long lastResetTime = System.currentTimeMillis();
 
